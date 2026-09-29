@@ -4,7 +4,7 @@ Rosania Thomas 5^G
 Un semplice programma che controlla una lampadina e l'informazione dello stato della lampadina viene trasmessa tramite server fatto in python e hostato in vercel.
 
 Link alla lamapdina:
-https://lampada-smart.vercel.app/
+https://lampadina-smart.vercel.app/
 
 siti utilizzati:
 
