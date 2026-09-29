@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lampadina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #101014;
+    --panel: #1a1c23;
+    --panel-border: #26282f;
+    --text: #ece9e2;
+    --text-dim: #8b8d96;
+    --accent: #ffb454;
+    --off: #33353d;
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    padding: 40px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .status {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin: 0 0 32px;
+    transition: color 0.3s ease;
+  }
+
+  .status.on { color: var(--accent-live, var(--accent)); }
+
+  .bulb-wrap {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 36px;
+  }
+
+  .bulb {
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    background: var(--off);
+    box-shadow: inset 0 -12px 24px rgba(0,0,0,0.35);
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+
+  .bulb.on {
+    box-shadow:
+      inset 0 -10px 20px rgba(0,0,0,0.15),
+      0 0 40px 6px var(--glow, var(--accent)),
+      0 0 90px 30px var(--glow, var(--accent));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .bulb.on { animation: pulse 3.2s ease-in-out infinite; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.08); }
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .toggle {
+    width: 52px;
+    height: 30px;
+    border-radius: 999px;
+    background: var(--off);
+    border: none;
+    position: relative;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s ease;
+  }
+
+  .toggle.on { background: var(--glow, var(--accent)); }
+
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #16171c;
+    transition: transform 0.25s ease;
+  }
+
+  .toggle.on::after { transform: translateX(22px); background: #16171c; }
+
+  .toggle-label {
+    font-size: 14px;
+    color: var(--text-dim);
+    min-width: 64px;
+  }
+
+  .section-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    align-self: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .swatches {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+
+  .swatch:hover { transform: scale(1.1); }
+  .swatch.selected { border-color: var(--text); }
+
+  .custom-color {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
+  input[type="color"]::-webkit-color-swatch { border: 2px solid var(--panel-border); border-radius: 50%; }
+
+  .custom-color span {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-family: 'Space Grotesk', monospace;
+  }
+
+  .offline {
+    font-size: 12px;
+    color: #d97757;
+    margin-top: 18px;
+    text-align: center;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>La tua lampadina</h1>
+  <p class="status" id="status">controllo dal browser</p>
+
+  <div class="bulb-wrap">
+    <button class="bulb" id="bulb" aria-label="Accendi o spegni la lampadina"></button>
+  </div>
+
+  <div class="toggle-row">
+    <button class="toggle" id="toggle" aria-label="Accendi o spegni"></button>
+    <span class="toggle-label" id="toggleLabel">spenta</span>
+  </div>
+
+  <p class="section-label">colore</p>
+  <div class="swatches" id="swatches">
+    <button class="swatch" style="background:#ffb454" data-color="#ffb454"></button>
+    <button class="swatch" style="background:#ff6b6b" data-color="#ff6b6b"></button>
+    <button class="swatch" style="background:#4dd0a8" data-color="#4dd0a8"></button>
+    <button class="swatch" style="background:#7c83fd" data-color="#7c83fd"></button>
+    <button class="swatch" style="background:#f5f2ea" data-color="#f5f2ea"></button>
+  </div>
+
+  <div class="custom-color">
+    <input type="color" id="colorPicker" value="#ffb454">
+    <span id="colorValue">#FFB454</span>
+  </div>
+
+  <p class="offline" id="offline">Server non raggiungibile — controlla che app.py sia in esecuzione.</p>
+</div>
+
+<script>
+  const API = ""; // stesso dominio: Flask serve questa pagina
+
+  const bulb = document.getElementById('bulb');
+  const toggle = document.getElementById('toggle');
+  const toggleLabel = document.getElementById('toggleLabel');
+  const status = document.getElementById('status');
+  const swatches = document.querySelectorAll('.swatch');
+  const colorPicker = document.getElementById('colorPicker');
+  const colorValue = document.getElementById('colorValue');
+  const offlineMsg = document.getElementById('offline');
+
+  function applyState(stato) {
+    const isOn = stato.accesa;
+    const colore = stato.colore || '#ffb454';
+
+    document.documentElement.style.setProperty('--glow', colore);
+    bulb.classList.toggle('on', isOn);
+    toggle.classList.toggle('on', isOn);
+    toggleLabel.textContent = isOn ? 'accesa' : 'spenta';
+    status.classList.toggle('on', isOn);
+    status.textContent = isOn ? 'la lampadina è accesa' : 'controllo dal browser';
+    colorPicker.value = colore;
+    colorValue.textContent = colore.toUpperCase();
+
+    swatches.forEach(s => {
+      s.classList.toggle('selected', s.dataset.color.toLowerCase() === colore.toLowerCase());
+    });
+
+    offlineMsg.style.display = 'none';
+  }
+
+  async function fetchStato() {
+    try {
+      const res = await fetch(`${API}/stato`);
+      const data = await res.json();
+      applyState(data);
+    } catch (err) {
+      offlineMsg.style.display = 'block';
+    }
+  }
+
+  async function doToggle() {
+    try {
+      const res = await fetch(`${API}/toggle`, { method: 'POST' });
+      const data = await res.json();
+      applyState(data);
+    } catch (err) {
+      offlineMsg.style.display = 'block';
+    }
+  }
+
+  async function setColore(colore) {
+    try {
+      const res = await fetch(`${API}/colore`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ colore })
+      });
+      const data = await res.json();
+      applyState(data);
+    } catch (err) {
+      offlineMsg.style.display = 'block';
+    }
+  }
+
+  bulb.addEventListener('click', doToggle);
+  toggle.addEventListener('click', doToggle);
+
+  swatches.forEach(s => {
+    s.addEventListener('click', () => setColore(s.dataset.color));
+  });
+
+  colorPicker.addEventListener('input', (e) => setColore(e.target.value));
+
+  fetchStato();
+  setInterval(fetchStato, 4000); // resta sincronizzata se qualcun altro la controlla
+</script>
+
+</body>
+</html>
